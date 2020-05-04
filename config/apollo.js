@@ -7,7 +7,7 @@ const httpLink = createHttpLink({
     fetch
 });
 
-const authLink = setContext ((_, { headers}) => {
+const authLink = setContext ((_, { headers }) => {
 
     //Leer el storage almacenado
     const token = localStorage.getItem('tokenCRM');
