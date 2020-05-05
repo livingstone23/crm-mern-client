@@ -1,4 +1,5 @@
-import { ApolloClient, createHttpLink, InMemoryCache  } from '@apollo/client';
+import { ApolloClient, createHttpLink  } from '@apollo/client';
+import { InMemoryCache } from 'apollo-cache-inmemory';
 import fetch from 'node-fetch';
 import { setContext } from 'apollo-link-context';
 
@@ -22,7 +23,9 @@ const authLink = setContext ((_, { headers }) => {
 
 const client = new ApolloClient({
     connectToDevTools: true,
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({
+        dataIdFromObject: object => object.key || null
+      }),
     link: authLink.concat( httpLink )
 });
 

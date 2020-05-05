@@ -41,15 +41,16 @@ const Nuevocliente = () => {
 
     //Mutation para crear nuevos clientes
     const [ nuevoCliente ] = useMutation(NUEVO_CLIENTE, {
-        update(cache, { data: { nuevoCliente } } ) {
+        update( cache, { data: { nuevoCliente } } ) {
+
             //Obtener el objeto de cache que deseamos actualizar
-            const { obtenerClientesVendedor } = cache.readQuery({ query: OBTENER_CLIENTES_USUARIO });
+            const { obtenerClienteVendedor } = cache.readQuery({ query: OBTENER_CLIENTES_USUARIO });
             
             //Reescribimos el cache (el cache no se debe modificar)
             cache.writeQuery({
                 query: OBTENER_CLIENTES_USUARIO,
                 data: {
-                    obtenerClientesVendedor: [...obtenerClientesVendedor, nuevoCliente ]
+                    obtenerClienteVendedor: [...obtenerClienteVendedor, nuevoCliente ]
                 }
             })
         }
@@ -98,7 +99,7 @@ const Nuevocliente = () => {
                 });
 
                 //Redireccionar hacia clientes
-                router.push('/')
+                router.push('/');
                 
 
 

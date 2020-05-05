@@ -29,13 +29,13 @@ const Cliente = ({ cliente }) => {
     const [ eliminarCliente ] = useMutation( ELIMINAR_CLIENTE, {
         update(cache) {
         //Obtener una copia del objeto de cache
-        const { obtenerClientesVendedor } = cache.readQuery({ query: OBTENER_CLIENTES_USUARIO });
+        const { obtenerClienteVendedor } = cache.readQuery({ query: OBTENER_CLIENTES_USUARIO });
             
             //Reescribir el cache
             cache.writeQuery({
                 query: OBTENER_CLIENTES_USUARIO,
                 data: {
-                    obtenerClientesVendedor: obtenerClientesVendedor.filter( clienteActual  => clienteActual.id )
+                    obtenerClienteVendedor: obtenerClienteVendedor.filter( clienteActual  => clienteActual.id !== id)
                 }
             })
         }

@@ -6,82 +6,83 @@ import * as Yup from 'yup';
 import { useMutation, useQuery, gql } from '@apollo/client';
 import Swal from 'sweetalert2';
 
-const OBTENER_CLIENTE = gql`
-    query obtenerCliente($id: ID!) {
-        obtenerCliente(id: $id){
+const OBTENER_PRODUCTO = gql`
+    query obtenerProducto($id: ID!) {
+        obtenerProducto(id: $id){
             id
             nombre
-            apellido
-            email
-            telefono
-            empresa
+            existencia
+            precio
         }
     }
 `;
 
-const ACTUALIZAR_CLIENTE = gql`
-     mutation actualizarCliente($id: ID!, $input: ClienteInput) {
-        actualizarCliente(id: $id, input: $input){
+const ACTUALIZAR_PRODUCTO = gql`
+    mutation actualizarProducto($id: ID!, $input: ProductoInput) {
+        actualizarProducto(id: $id, input: $input) {
+            id
             nombre
-            apellido
-            email
-            empresa
-        }
+            precio
+            existencia
+    }
     }
 `;
 
 
-const EditarCliente = () => {
+const EditarProducto = () => {
 
     //obtener el ID actual
     const router = useRouter();
     const { query: { id } } = router;
-    
+
 
     //Consultar para obtener el cliente
-    const { data, loading, error } = useQuery(OBTENER_CLIENTE, { 
+    const { data, loading, error } = useQuery(OBTENER_PRODUCTO, { 
         variables: {
             id
         }
     });
 
-    //Actualizar el cliente
-    const [ actualizarCliente ] = useMutation( ACTUALIZAR_CLIENTE );
+    //Actualizar el producto
+    const [ actualizarProducto ] = useMutation( ACTUALIZAR_PRODUCTO );
 
     //Schema de validacion
     const schemaValidacion = Yup.object({
         nombre: Yup.string()
-            .required('El nombre del cliente es obligatorio'),
-        apellido: Yup.string()
-            .required('El apellido del cliente es obligatorio'),
+            .required('El nombre del producto es requerido'),
+        
+        existencia: Yup.number()
+            .required('Agrega la cantidad disponible')
+            .positive('No se aceptan numeros negativos')
+            .integer('La Existencia debe ser números entereos'),
 
-        empresa: Yup.string()
-            .required('El campo empresa es obligatorio'),
+        precio: Yup.number()
+            .required('El campo empresa es obligatorio')
+            .positive('No se aceptan numeros negativos')
 
-        email: Yup.string()
-            .email('Email no válido')
-            .required('El campo empresa es obligatorio'),
     });
-
 
     if (loading ) return 'Cargando ...';
 
-    const { obtenerCliente } = data;
 
-    // Modifica el cliente en la base de datos
-    const actualizarInfoCliente =  async valores => {
-        const { nombre, apellido, empresa, email, telefono } = valores;
+    if(!data) {
+        return 'Acción no permitida';
+    }
+
+    const { obtenerProducto } = data;
+
+    // Modifica el producto en la base de datos
+    const actualizarInfoProducto =  async valores => {
+        const { nombre, existencia, precio } = valores;
 
         try {
-            const { data } = await actualizarCliente({
+            const { data } = await actualizarProducto({
                 variables: {
                     id,
                     input: {
                         nombre,
-                        apellido,
-                        empresa,
-                        email,
-                        telefono
+                        existencia,
+                        precio
                     }
                 }
             });
@@ -89,13 +90,13 @@ const EditarCliente = () => {
             //TODO SWEET ALERT
             Swal.fire(
                 'Actualizado!',
-                'El cliente se actualizó correctamente',
+                'El Producto se actualizó correctamente',
                 'success'
                 );
 
 
             //Redireccionamos
-            router.push('/');
+            router.push('/productos');
 
         } catch (error) {
             console.log(error);
@@ -103,10 +104,11 @@ const EditarCliente = () => {
     }; 
 
 
-  
+ 
+
     return (
-        <Layout>
-            <h1 className="text-2xl text-gray-800 font-ligth">Edición Cliente</h1>
+         <Layout>
+            <h1 className="text-2xl text-gray-800 font-ligth">Edición Producto</h1>
 
 
             <div className="flex justify-center mt-5">
@@ -115,9 +117,9 @@ const EditarCliente = () => {
                     <Formik
                         validationSchema= { schemaValidacion }
                         enableReinitialize
-                        initialValues = { obtenerCliente }
-                        onSubmit={( valores) => {
-                            actualizarInfoCliente( valores )
+                        initialValues = { obtenerProducto }
+                        onSubmit={( valores ) => {
+                            actualizarInfoProducto( valores )
 
                         }}
                     >
@@ -132,13 +134,13 @@ const EditarCliente = () => {
 
                                     <div className="mb-4">
                                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="nombre">
-                                            Nombre
+                                            Producto
                                         </label>
                                         <input 
                                             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                             id="nombre"
                                             type="text"
-                                            placeholder="Nombre Cliente"
+                                            placeholder="Nombre Producto"
                                             value={props.values.nombre}
                                             onChange={props.handleChange}
                                             onBlur={props.handleBlur}
@@ -154,85 +156,49 @@ const EditarCliente = () => {
 
                                     
                                     <div className="mb-4">
-                                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="apellido">
-                                            Apellido
+                                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="existencia">
+                                            Existencia
                                         </label>
                                         <input 
                                             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                            id="apellido"
-                                            type="text"
-                                            placeholder="Apellido del Cliente"
-                                            value={props.values.apellido}
+                                            id="existencia"
+                                            type="number"
+                                            placeholder="Cantidad de Productos"
+                                            value={props.values.existencia}
                                             onChange={props.handleChange}
                                             onBlur={props.handleBlur}
                                         />
                                     </div>
 
-                                    {  props.touched.apellido && props.errors.apellido ? (
+                                    {  props.touched.existencia && props.errors.existencia ? (
                                         <div className="my-2 bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
                                             <p className="font-bold">Error</p>
-                                            <p>{props.errors.apellido}</p>
+                                            <p>{props.errors.existencia}</p>
                                         </div>
                                     ) : null }
 
                                     <div className="mb-4">
                                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="empresa">
-                                            Empresa
+                                            Precio
                                         </label>
                                         <input 
                                             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                            id="empresa"
-                                            type="empresa"
-                                            placeholder="Empresa Cliente"
-                                            value={props.values.empresa}
+                                            id="precio"
+                                            type="number"
+                                            placeholder="Precio"
+                                            value={props.values.precio}
                                             onChange={props.handleChange}
                                             onBlur={props.handleBlur}
                                         />
                                     </div>
 
-                                    { props.touched.empresa && props.errors.empresa ? (
+                                    { props.touched.precio && props.errors.precio ? (
                                         <div className="my-2 bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
                                             <p className="font-bold">Error</p>
-                                            <p>{props.errors.empresa}</p>
+                                            <p>{props.errors.precio}</p>
                                         </div>
                                     ) : null }
 
-                                    <div className="mb-4">
-                                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                                            Email
-                                        </label>
-                                        <input 
-                                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                            id="email"
-                                            type="email"
-                                            placeholder="Email Cliente"
-                                            value={props.values.email}
-                                            onChange={props.handleChange}
-                                            onBlur={props.handleBlur}
-                                        />
-                                    </div>
-
-                                    { props.touched.email && props.errors.email ? (
-                                        <div className="my-2 bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
-                                            <p className="font-bold">Error</p>
-                                            <p>{props.errors.email}</p>
-                                        </div>
-                                    ) : null }
-
-                                    <div className="mb-4">
-                                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="telefono">
-                                            Teléfono
-                                        </label>
-                                        <input 
-                                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                            id="telefono"
-                                            type="tel"
-                                            placeholder="Teléfono Cliente"
-                                            value={props.values.telefono}
-                                            onChange={props.handleChange}
-                                            onBlur={props.handleBlur}
-                                        />
-                                    </div>
 
                                     <input 
                                         type="submit"
@@ -249,4 +215,6 @@ const EditarCliente = () => {
     );
 };
 
-export default EditarCliente;
+export default EditarProducto;
+
+

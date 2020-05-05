@@ -1,6 +1,5 @@
-import Head from 'next/head';
 import Layout from '../components/Layout';
-import Cliente from '../components/cliente';
+import Cliente from '../components/Cliente';
 import { gql, useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
