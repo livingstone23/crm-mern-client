@@ -241,14 +241,10 @@ const Nuevocliente = () => {
                             type="submit"
                             className="bg-gray-800 w-full mt-5 p-2 text-white uppercase font-bold hove:bg-gray-900"
                             value="Registrar Cliente"
-                        
                         />
-
                     </form>
                 </div>
             </div>
-
-
         </Layout>
     );
 };
