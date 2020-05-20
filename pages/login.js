@@ -52,8 +52,8 @@ const Login = () => {
                         }
                     }
                 });
-                console.log('TOKEN');
-                console.log(data);
+                //console.log('TOKEN');
+                //console.log(data);
                 guardarMensaje('Autenticando...');
 
                 //Guardar token en localStorage
@@ -63,7 +63,7 @@ const Login = () => {
                 //Redireccionar a clientes
                 setTimeout(() => {
                     guardarMensaje(null);
-                    router.push('/')
+                    router.push('/');
                 }, 2000);
 
             } catch(error) {
