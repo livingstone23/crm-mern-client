@@ -38,6 +38,10 @@ const AsignarCliente = () => {
         setCliente(clientes);
     }
 
+
+    //Resultado de la consulta
+    if(loading) return null;
+
     //Resultado de la consulta
     if(loading) return null;
 
